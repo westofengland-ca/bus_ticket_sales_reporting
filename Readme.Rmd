@@ -1,0 +1,13 @@
+---
+title: "Create Public Transport Input Files for MATSim"
+author: "tomalx"
+date: "28/04/2026"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Bus Ticket Reporting Tools and Other Data Products
+
