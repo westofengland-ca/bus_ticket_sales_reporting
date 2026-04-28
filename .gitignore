@@ -47,3 +47,8 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+##############################
+
+# ticket sales csv files
+csv/sales/*.csv
