@@ -1,0 +1,447 @@
+---
+title: "Bus Ticket Sales During School Holidays"
+format: html
+editor: visual
+project:
+  execute-dir: project
+---
+
+This analysis focuses on ticket sales during the school holidays in the following time periods:
+
+-   School Holiday between terms 1 and 2 (27th October - 2nd November). No child ticket promotion.
+
+-   School Holiday between terms 2 and 3 (22nd December - 2nd January). "Kids Go Free" promotion active.
+
+-   School Holiday between terms 3 and 4 (16th February - 22nd February). No child ticket promotion.
+
+The "Kids Go Free" promotion was also active during Summer 2025. Unfortunately there is limited ticket sales data available to us for this time period.
+
+```{r import}
+#| echo: FALSE
+#| warning: FALSE
+#| message: FALSE
+
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(scales)
+library(hms)
+library(DT)
+library(ggplot2)
+library(treemapify)
+library(RColorBrewer)
+
+dis_pal <- brewer.pal(name = "Paired", n = 11)
+
+# import weekly ticketer data (each csv should cover ticket sales during one week of school holiday) - to import extra weekly ticket sales data, use import_all_op_ticketer.py
+all_ops_ticketer_t1 <- read.csv("csv/sales/all_ops_ticketer_20251027-20251102.csv")
+all_ops_ticketer_t2a <- read.csv("csv/sales/all_ops_ticketer_20251222-20251228.csv")
+all_ops_ticketer_t2b <- read.csv("csv/sales/all_ops_ticketer_20251229-20260104.csv")
+all_ops_ticketer_t3 <- read.csv("csv/sales/all_ops_ticketer_20260216-20260222.csv")
+all_ops_ticketer_t4a <- read.csv("csv/sales/all_ops_ticketer_20260330-20260405.csv")
+all_ops_ticketer_t4b <- read.csv("csv/sales/all_ops_ticketer_20260406-20260412.csv")
+all_ops_ticketer_t4c <- read.csv("csv/sales/all_ops_ticketer_20260413-20260419.csv")
+# create ticket type lists
+
+```
+
+```{r child_ticket_types}
+#| echo: false
+#| warning: FALSE
+#| message: FALSE
+
+# create ticket type lists
+
+ticket_types <- read.csv("csv/kids_go_free_ticket_types.csv")
+
+kids_go_free_ticket_types_table <- ticket_types %>% 
+  filter(Offer == TRUE & Child == TRUE) %>%  select(Ticket_Type,Operator)
+
+kids_go_free_ticket_types <- ticket_types %>% 
+  filter(Offer == TRUE & Child == TRUE) %>%  pull(Ticket_Type)
+
+
+# for(i in 1:length(kids_go_free_ticket_types)){
+#   cat(kids_go_free_ticket_types[i],"\n")
+# } 
+
+# datatable(kids_go_free_ticket_types_table, 
+#           rownames = FALSE, 
+#           options = list(
+#             pageLength = 5,
+#             lengthMenu = c(5, 10, 15, 20)
+#             )
+# )
+
+```
+
+```{r promotion_ticket_types}
+#| echo: false
+#| warning: FALSE
+#| message: FALSE
+
+
+child_ticket_types_table <- ticket_types %>% 
+  filter(Child == TRUE) %>%  select(Ticket_Type,Operator)
+
+child_ticket_types <- ticket_types  %>% 
+  filter(Child == TRUE) %>%  pull(Ticket_Type)
+
+# for(i in 1:length(kids_go_free_ticket_types)){
+#   cat(kids_go_free_ticket_types[i],"\n")
+# } 
+
+# datatable(child_ticket_types_table, 
+#           rownames = FALSE, 
+#           options = list(
+#             pageLength = 5,
+#             lengthMenu = c(5, 10, 15, 20)
+#           )
+# )
+
+```
+
+```{r join_week_sales}
+#| echo: false
+#| warning: FALSE
+#| message: FALSE
+
+# function to add offer_week var
+add_offer_week_var <- function(ticket_df, var_value = "term_1-2"){
+  
+  ticket_df <- ticket_df %>% mutate(offer_week = var_value)
+  return(ticket_df)
+}
+
+all_ops_ticketer_t1 <- all_ops_ticketer_t1 %>% add_offer_week_var(var_value = "w/c 27th Oct\nholiday")
+all_ops_ticketer_t2a <- all_ops_ticketer_t2a %>% add_offer_week_var(var_value = "w/c 22nd Dec\nholiday")
+all_ops_ticketer_t2b <- all_ops_ticketer_t2b %>% add_offer_week_var(var_value = "w/c 29th Dec\nholiday")
+all_ops_ticketer_t3 <- all_ops_ticketer_t3 %>% add_offer_week_var(var_value = "w/c 16th Feb\nholiday")
+all_ops_ticketer_t4a <- all_ops_ticketer_t4a %>% add_offer_week_var(var_value = "w/c 30th Mar\nholiday")
+all_ops_ticketer_t4b <- all_ops_ticketer_t4b %>% add_offer_week_var(var_value = "w/c 6th Apr\nholiday")
+all_ops_ticketer_t4c <- all_ops_ticketer_t4c %>% add_offer_week_var(var_value = "w/c 13th Apr\nholiday")
+
+all_ops_ticketer <- rbind(all_ops_ticketer_t1, all_ops_ticketer_t2a)
+all_ops_ticketer <- rbind(all_ops_ticketer, all_ops_ticketer_t2b)
+all_ops_ticketer <- rbind(all_ops_ticketer, all_ops_ticketer_t3)
+all_ops_ticketer <- rbind(all_ops_ticketer, all_ops_ticketer_t4a)
+all_ops_ticketer <- rbind(all_ops_ticketer, all_ops_ticketer_t4b)
+all_ops_ticketer <- rbind(all_ops_ticketer, all_ops_ticketer_t4c)
+
+rm(all_ops_ticketer_t1, all_ops_ticketer_t2a, all_ops_ticketer_t2b, all_ops_ticketer_t3, all_ops_ticketer_t4a, all_ops_ticketer_t4b, all_ops_ticketer_t4c)
+
+```
+
+```{r date_attribute}
+#| echo: false
+#| warning: FALSE
+#| message: FALSE
+
+# all_ops_ticketer$date <- all_ops_ticketer$IssuedAt %>% stringr::str_extract("[0-9]{4}-[0-9]{2}-[0-9]{2}")
+
+all_ops_ticketer$date <- all_ops_ticketer$IssuedAt %>% 
+  as_datetime()
+
+all_ops_ticketer$week <- all_ops_ticketer$IssuedAt %>% 
+  isoweek()
+
+week_count <- all_ops_ticketer %>% group_by(week) %>% summarise(count = n())
+low_count_weeks <- week_count %>% filter(count < 1000) %>% pull(week)
+
+all_ops_ticketer <- all_ops_ticketer %>%
+  filter(week %notin% low_count_weeks)
+
+```
+
+## Ticket Types
+
+**There were almost one hundred different child ticket *types* sold during the school holiday periods.**
+
+Each rectangle in the chart below represents a different ticket type. The size of the rectangles are proportional to the number of sales.
+
+```{r ticket_type_treemap}
+#| echo: false
+#| warning: FALSE
+#| message: FALSE
+
+# tree chart of child ticket types - split by promotion and non-promotion
+
+ticket_type_treemap_table <- all_ops_ticketer %>% 
+  filter(Ticket_Type %in% child_ticket_types) %>% 
+  group_by(Ticket_Type, Operator) %>% 
+  summarise(sales = n()) %>% 
+  mutate(promotion = ifelse(Ticket_Type %in% kids_go_free_ticket_types, "Child Promotion Tickets", " Child Non-Promotion Tickets")) %>%
+  mutate(other_ops = ifelse(Operator %in% c("first"), "First", "Other Operators"))
+
+ticket_type_treemap <- ticket_type_treemap_table %>% 
+  ggplot(aes(area = sales, 
+             fill = other_ops, 
+             label = Ticket_Type,
+             subgroup = promotion)) +
+  geom_treemap(colour = "white", size = 1)
+ticket_type_treemap <- ticket_type_treemap + 
+  #geom_treemap_text(colour = "black", place = "bottomright", size = 8) +
+  scale_fill_manual(values = c("First" = dis_pal[10], 
+                               "Other Operators" = dis_pal[9])) +
+  theme(legend.title = element_blank(),
+        legend.position = "top")
+
+ticket_type_treemap <- ticket_type_treemap +
+  geom_treemap_subgroup_border(colour = "white", size = 5) +
+  geom_treemap_subgroup_text(colour = "white", reflow = TRUE, place = "centre", size = 24)
+
+
+ticket_type_treemap
+
+```
+
+The chart shows the large variety of child *non-promotion* ticket types. It also demonstrates that the majority of child bus ticket sales were on First buses.
+
+This table confirms that less than 2% of child ticket sales in our data were on buses operated by companies other than First.
+
+```{r non_first_perc}
+#| echo: false
+#| warning: FALSE
+#| message: FALSE
+
+# percentage of non-first child ticket sales
+
+sales_total <- sum(ticket_type_treemap_table$sales)
+
+ticket_type_treemap_table %>% 
+  # mutate(sum_sales = sum(sales)) %>% 
+  group_by(Operator) %>%
+  summarise(total_sales = sum(sales)) %>% 
+  mutate(percentage = percent(total_sales/sales_total, accuracy = 0.1)) %>% 
+  arrange(desc(total_sales)) %>% 
+  datatable(rownames = FALSE, 
+            options = list(
+                        info = FALSE,
+                        paging = FALSE,
+                        pagelength = 10,
+                        searching = FALSE
+                      )
+  )
+
+
+```
+
+The table below show all 98 different ticket types and the number of sales for each across all school holiday periods included in this analysis:
+
+```{r}
+#| echo: false
+#| warning: FALSE
+#| message: FALSE
+#| 
+ticket_type_treemap_table %>% 
+  select(-other_ops) %>% 
+  arrange(desc(sales)) %>%
+  datatable(rownames = FALSE)
+
+
+```
+
+```{r total_sales_table}
+#| echo: false
+#| warning: FALSE
+#| message: FALSE
+
+'%notin%' <- Negate(`%in%`)
+
+total_sales <- all_ops_ticketer %>% group_by(offer_week) %>% 
+  summarise(other_sales = sum(Ticket_Type %notin% child_ticket_types),
+            # count of ticket sales where Ticket_Type is in child_ticket_types
+            child_nopromo_sales = sum(Ticket_Type %in% child_ticket_types & Ticket_Type %notin% kids_go_free_ticket_types),
+            child_promo_sales = sum(Ticket_Type %in% kids_go_free_ticket_types)
+            )
+
+total_sales <- total_sales %>% 
+  # pivot longer to have a column for sales type and a column for sales count
+  pivot_longer(cols = c(other_sales, child_nopromo_sales, child_promo_sales), 
+               names_to = "sales_type", values_to = "sales_count")
+
+```
+
+## Child Ticket Sales versus Adult Ticket Sales
+
+**Compared to the total volume of sales, *Child* tickets account for a relatively small proportion.**
+
+**The volume of sales for all tickets is much smaller in the second school holiday period (Christmas/New Year), compared to both the October and February school holidays.**
+
+In the charts below, the ticket sales data has been subsetted into 4 different time periods. Each time period covers one week during a school holiday. The middle two time periods (school holiday 2) cover the Christmas/New Year school holiday, which is when the "Kids Go Free" promotion was active.
+
+This chart shows that child ticket sales (light and dark green) account for a low proportion of overall sales. The chart also shows that the total volume of sales is much smaller during the Christmas/New Year school holiday (school holiday 2) compared to the October and February school holidays (school holidays 1 and 3).
+
+```{r total_sales_stack_chart}
+#| echo: false
+#| warning: FALSE
+#| message: FALSE
+
+# plot chart of total sales split sales into groups using sales_type
+plot <- total_sales %>% ggplot(aes(x = offer_week, y = sales_count, fill = sales_type)) +
+  geom_bar(stat = "identity" , position = "dodge"
+           ) +
+  # add labels to bars with text size = 8
+  geom_text(aes(label = sales_count), 
+            position = position_dodge(width = 0.9), 
+            vjust = -0.5,
+            size = 3) +
+  #geom_text(aes(label = sales_count), position = position_dodge(width = 0.9), vjust = -0.5) +
+  labs(x = " ", y = "Ticket Sales") +
+  scale_y_continuous(labels = ~ format(.x, scientific = FALSE) )
+
+plot <- plot + theme_minimal() + 
+    theme(
+      panel.grid = element_blank(),
+      axis.text.x = element_text(size = 12) ,
+      axis.text.y = element_blank()
+      
+    )
+
+# add manual colours to plot
+plot + scale_fill_manual(values = c("other_sales" = "#ababab", "child_nopromo_sales" = dis_pal[3], "child_promo_sales" = dis_pal[4]),
+                      labels = c("Child Non-Promo.", "Child Promo.", "Other Tickets")) +
+  theme(legend.title = element_blank(),
+        legend.position = "top")
+
+```
+
+The chart below also shows ticket sales in the same school holiday time periods. However, this chart focuses on child ticket sales as a proportion of total ticket sales. The chart confirms that the promotion tickets are mainly sold during school holiday 2 (Christmas/New Year), which is when the "Kids Go Free" promotion was active.
+
+**The proportion of child ticket sales is much higher during the Christmas/New Year school holiday (school holiday 2 when the "Kids Go Free" promotion is active) compared to the October and February school holidays (school holidays 1 and 3).**
+
+```{r child_sales_proportion}
+#| echo: false
+#| warning: FALSE
+#| message: FALSE
+
+total_sales_proportion <- total_sales %>% group_by(offer_week) %>% 
+  summarise(total_sales = sum(sales_count),
+            child_promo_sales = sum(sales_count[sales_type == "child_promo_sales"]),
+            child_nopromo_sales = sum(sales_count[sales_type == "child_nopromo_sales"])
+            ) 
+  
+total_sales_proportion <- total_sales_proportion %>% 
+  mutate(child_promo_proportion = child_promo_sales / total_sales,
+         child_nopromo_proportion = child_nopromo_sales / total_sales) %>% 
+  select(offer_week, child_promo_proportion, child_nopromo_proportion)
+
+total_sales_proportion <- total_sales_proportion %>% 
+  pivot_longer(cols = c(child_promo_proportion, child_nopromo_proportion), 
+               names_to = "sales_type", values_to = "proportion")
+
+# chart of child promo sales proportion by offer week
+total_sales_proportion %>% ggplot(aes(x = offer_week, y = proportion, fill = sales_type)) +
+  geom_bar(stat = "identity" , position = "dodge") +
+  geom_text(aes(label = scales::percent(proportion, accuracy = 0.1)), 
+            position = position_dodge(width = 0.9), 
+            vjust = -0.5,
+            size = 3) +
+  labs(x = " ", y = "Proportion of Total Sales") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  theme_minimal() + 
+    theme(
+      panel.grid = element_blank(),
+      #increase size of text
+      axis.text.x = element_text(size = 12) ,
+      axis.text.y = element_blank()
+      
+    ) +
+  scale_fill_manual(values = c("child_nopromo_proportion" = dis_pal[3], "child_promo_proportion" = dis_pal[4]),
+                      labels = c("Child Non-Promo.", "Child Promo.")) +
+  theme(legend.title = element_blank(),
+        legend.position = "top")
+
+
+
+```
+
+## Ticket Sales by Week Day
+
+Chart shows ticket sales by week day for each of the 4 school holiday time periods.
+
+```{r sales_by_week_day}
+#| echo: FALSE
+#| warning: FALSE
+#| message: FALSE
+#| fig-height: 15
+
+all_ops_ticketer <- all_ops_ticketer %>% 
+  mutate(IssuedAt = ymd_hms(IssuedAt)) # date time in intervals
+all_ops_ticketer <- all_ops_ticketer %>% 
+  mutate(issued_wday = wday(IssuedAt, label = TRUE, week_start = 1))
+all_ops_ticketer <- all_ops_ticketer %>% 
+  mutate(issued_int = round_date(IssuedAt, "30 mins"))
+all_ops_ticketer <- all_ops_ticketer %>% 
+  mutate(issued_secs = as.numeric(issued_int) %% 86400, issued_time = as_hms(issued_secs))
+
+weeks <- all_ops_ticketer$offer_week %>% unique()
+
+# ticket sales for each 15 minute segment during the day, split by offer week and child/non-child tickets
+
+plot_interval_tally <- all_ops_ticketer %>%
+  # filter issued time before 06:00
+  filter(issued_secs >= 6*60*60) %>% 
+  filter(issued_secs <= 22*60*60) %>% 
+  #filter(issued_wday == "Mon") %>% 
+  group_by(issued_time, offer_week, issued_wday) %>% 
+  summarise(sales = n())
+
+## ggplot freqpoly of ticket sales by time of day, split by offer week and child/non-child tickets
+
+plot_interval_tally <- plot_interval_tally %>%
+  na.omit() %>% 
+  ggplot(aes(x = issued_time, y = sales, 
+             #group = issued_wday, 
+             colour = offer_week)) +
+  geom_line(#colour = ~offer_week, 
+            linewidth = 1) +
+              labs(x = "hour of day",
+                   y = "passengers boarding",
+                   title = "") +
+             # scale_y_continuous(labels = ~ format(.x, scientific = FALSE) ) +
+              scale_x_time(date_breaks = "3 hours", date_labels = "%H") +
+              scale_colour_manual(values = c("#ababab", "#12ab12", "#12ab12", "#ababab", "#12ab12", "#12ab12","#12ab12")) +
+  facet_wrap(~issued_wday, ncol = 1)
+
+
+plot_interval_tally <- plot_interval_tally + theme_minimal() + 
+    theme(
+      panel.grid = element_blank(),
+      axis.text.y = element_blank(),
+      legend.position = "top",
+      legend.title = element_blank()
+    )
+
+plot_interval_tally
+ # plot <- all_ops_ticketer %>%
+ #            left_join(ticket_types %>% select(-Operator), by = c("Ticket_Type")) %>% 
+ #            filter(Child == TRUE) %>% 
+ #              ggplot(
+ #                  aes(x = issued_time,
+ #                   #   colour = issued_wday,
+ #                      group = Child)
+ #                ) +
+ #              geom_freqpoly(colour = "#12ab12", linewidth = 1) +
+ #              labs(x = "hour of day",
+ #                   y = "passengers boarding",
+ #                   title = "") +
+ #             # scale_y_continuous(labels = ~ format(.x, scientific = FALSE) ) +
+ #              scale_x_time(date_breaks = "3 hours", date_labels = "%H") +
+ #     facet_wrap(~offer_week, ncol = 1)
+ #  plot <- plot + theme_minimal() + 
+ #    theme(
+ #      panel.grid = element_blank(),
+ #      axis.text.y = element_blank()
+ #    )#+ scale_color_manual(values = line_colours)
+ #  plot# + gghighlight::gghighlight(Child %in% #select_wday) 
+ #                  #                  c("TRUE"))
+ #  
+
+```
+
+The Saturday and Sunday boarding profiles are similar irrespective of the holiday week.
+
+The weekday boarding profiles have different patterns particularly on Wednesday, Thursday and Friday. These days correspond with bank holidays during the Christmas and New Year Holiday period, when either bus services were not operating or there was less demand for local trips.
+
+The boarding profiles for school holiday 2 (Christmas/New Year) show a more even distribution of boardings across the day compared to school holidays 1 and 3 (October and February), which have more pronounced morning and afternoon peaks.
