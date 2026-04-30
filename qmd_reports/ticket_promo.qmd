@@ -30,17 +30,20 @@ library(DT)
 library(ggplot2)
 library(treemapify)
 library(RColorBrewer)
+library(glue)
 
 dis_pal <- brewer.pal(name = "Paired", n = 11)
 
+proj_path <- here()
+
 # import weekly ticketer data (each csv should cover ticket sales during one week of school holiday) - to import extra weekly ticket sales data, use import_all_op_ticketer.py
-all_ops_ticketer_t1 <- read.csv("csv/sales/all_ops_ticketer_20251027-20251102.csv")
-all_ops_ticketer_t2a <- read.csv("csv/sales/all_ops_ticketer_20251222-20251228.csv")
-all_ops_ticketer_t2b <- read.csv("csv/sales/all_ops_ticketer_20251229-20260104.csv")
-all_ops_ticketer_t3 <- read.csv("csv/sales/all_ops_ticketer_20260216-20260222.csv")
-all_ops_ticketer_t4a <- read.csv("csv/sales/all_ops_ticketer_20260330-20260405.csv")
-all_ops_ticketer_t4b <- read.csv("csv/sales/all_ops_ticketer_20260406-20260412.csv")
-all_ops_ticketer_t4c <- read.csv("csv/sales/all_ops_ticketer_20260413-20260419.csv")
+all_ops_ticketer_t1 <- read.csv(glue("{proj_path}/csv/sales/all_ops_ticketer_20251027-20251102.csv"))
+all_ops_ticketer_t2a <- read.csv(glue("{proj_path}/csv/sales/all_ops_ticketer_20251222-20251228.csv"))
+all_ops_ticketer_t2b <- read.csv(glue("{proj_path}/csv/sales/all_ops_ticketer_20251229-20260104.csv"))
+all_ops_ticketer_t3 <- read.csv(glue("{proj_path}/csv/sales/all_ops_ticketer_20260216-20260222.csv"))
+all_ops_ticketer_t4a <- read.csv(glue("{proj_path}/csv/sales/all_ops_ticketer_20260330-20260405.csv"))
+all_ops_ticketer_t4b <- read.csv(glue("{proj_path}/csv/sales/all_ops_ticketer_20260406-20260412.csv"))
+all_ops_ticketer_t4c <- read.csv(glue("{proj_path}/csv/sales/all_ops_ticketer_20260413-20260419.csv"))
 # create ticket type lists
 
 ```
@@ -52,7 +55,7 @@ all_ops_ticketer_t4c <- read.csv("csv/sales/all_ops_ticketer_20260413-20260419.c
 
 # create ticket type lists
 
-ticket_types <- read.csv("csv/kids_go_free_ticket_types.csv")
+ticket_types <- read.csv(glue("{proj_path}/csv/kids_go_free_ticket_types.csv"))
 
 kids_go_free_ticket_types_table <- ticket_types %>% 
   filter(Offer == TRUE & Child == TRUE) %>%  select(Ticket_Type,Operator)
