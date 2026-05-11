@@ -7,3 +7,116 @@ editor: visual
 ## time series overview
 
 
+```{r import}
+#| echo: FALSE
+#| warning: FALSE
+#| message: FALSE
+
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(data.table)
+library(lubridate)
+library(scales)
+library(hms)
+library(DT)
+library(ggplot2)
+library(treemapify)
+library(RColorBrewer)
+library(glue)
+library(here)
+library(xts)
+
+dis_pal <- brewer.pal(name = "Paired", n = 11)
+
+proj_path <- here()
+
+month_csv <- dir(glue("{proj_path}/csv/sales/"), pattern = "all_ops_ticketer_", full.names = TRUE)
+
+month_csv <- month_csv[4:5] %>%
+  map(read.csv) %>%
+  map(as_tibble)
+                 
+                 
+
+# import weekly ticketer data (each csv should cover ticket sales during one week of school holiday) - to import extra weekly ticket sales data, use import_all_op_ticketer.py
+
+# all_ops_ticketer_jan26 <- read.csv(glue("{proj_path}/csv/sales/all_ops_ticketer_20260101-20260131.csv"))
+# all_ops_ticketer_feb26 <- read.csv(glue("{proj_path}/csv/sales/all_ops_ticketer_20260201-20260228.csv"))
+# all_ops_ticketer_mar26 <- read.csv(glue("{proj_path}/csv/sales/all_ops_ticketer_20260301-20260331.csv"))
+# all_ops_ticketer_apr26 <- read.csv(glue("{proj_path}/csv/sales/all_ops_ticketer_20260401-20260430.csv"))
+# create ticket type lists
+
+```
+
+
+## bind into one data frame and validate
+
+```{r oneDF_val}
+
+# don't need this step with purrr approach?
+
+# # list all_ops_ticketer objects in env
+# ticketer_ls <- ls(pattern = "all_ops_ticketer_")
+# 
+# # all_ops_ticketer <- rbind(all_ops_ticketer_jan26, all_ops_ticketer_feb26, all_ops_ticketer_mar26)
+# 
+# all_ops_ticketer <- rbindlist(ticketer_ls)
+# 
+# # remove individual ticketer objs
+# rm(list = ticketer_ls)
+
+```
+
+
+## convert into zoo:xts object for time series
+
+```{r zoo_xts}
+# convert to zoo:xts object for time series analysis
+
+month_csv_map <- map(month_csv, select, "Ticket_ID", "IssuedAt", "Service", "Bus_Stop_Atco") # select cols
+month_csv_map <- map(month_csv_map, filter, Service == "X39")
+month_csv_map <- map(month_csv_map, mutate, datetime = as_datetime(IssuedAt))
+month_csv_map <- map(month_csv_map, mutate, datetime_rnd = round_date(datetime, unit = "15 mins"))
+# month_csv_map <- map(month_csv_map, mutate, isoweek = isoweek(datetime))
+month_csv_map <- map(month_csv_map, group_by, datetime_rnd)
+month_csv_map <- map(month_csv_map, summarise, n = n())
+
+month_csv_map <- map(month_csv_map, as.xts)
+
+## convert to one xts object
+month_csv_map <- do.call("rbind", month_csv_map)
+
+######
+
+# all_ops_ticketer$datetime <- all_ops_ticketer$IssuedAt %>% 
+#   as_datetime()
+# 
+# all_ops_ticketer_xts <- all_ops_ticketer %>% select(Ticket_ID, datetime, Service, stop_id = Bus_Stop_Atco)
+# 
+# all_ops_ticketer_xts <- all_ops_ticketer_xts %>% as.xts()
+
+```
+
+
+## plot time series using dygraph
+
+```{r dygraph_ts}
+library(dygraphs)
+p <- dygraph(month_csv_map) %>% 
+  dyOptions(fillGraph = TRUE, stepPlot = TRUE) %>% 
+  dyRangeSelector() %>% 
+  dyOptions(colors = dis_pal[2])
+
+p
+
+# if ts_plots directory doesn't exist make directory
+if(!dir.exists(glue("{proj_path}/ts_plots"))){
+  dir.create(glue("{proj_path}/ts_plots"))
+}
+
+saveWidget(p, file=glue("{proj_path}/ts_plots/dygraph_test.html"))
+
+```
+
+

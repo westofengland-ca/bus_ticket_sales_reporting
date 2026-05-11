@@ -52,6 +52,7 @@ rsconnect/
 
 # ticket sales csv files
 csv/sales/*.csv
+csv/sales/*.zip
 
 # tdh keys
 import_ticket_sales/tdh_keys.py
