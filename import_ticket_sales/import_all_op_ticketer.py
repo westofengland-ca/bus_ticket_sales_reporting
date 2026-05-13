@@ -12,11 +12,6 @@ connection = sql.connect(
     auth_type=auth_type
 )
 
-# connection = sql.connect(
-#     server_hostname="adb-4211026050712372.12.azuredatabricks.net",
-#     http_path="/sql/1.0/warehouses/0b092a0a61e3510f",
-#     auth_type="databricks-oauth"
-# )
 cursor = connection.cursor()
 
 

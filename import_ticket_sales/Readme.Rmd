@@ -1,0 +1,12 @@
+---
+title: "Import Ticket Sales"
+author: "tomalx"
+date: "28/04/2026"
+output: github_document
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Python script to download csv from TDH lakehouse.
