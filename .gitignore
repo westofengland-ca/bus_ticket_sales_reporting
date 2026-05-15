@@ -56,5 +56,10 @@ csv/sales/*.zip
 
 gtfs/
 
+# reports
+qmd_reports/ticket_time_series_files/
+qmd_reports/ticket_time_series.html
+ts_plots/*.html
+
 # tdh keys
 import_ticket_sales/tdh_keys.py
