@@ -33,23 +33,32 @@
 # need to filter gtfs_sf so that only services for a given date are in the stop_times sf
 # i.e. we just want the stop_times for the specific date we are interested in (e.g. a weekday in 2024)
 
+source("r/filter_gtfs.R")
 
 # get bus freq
-bus_freq <- gtfs_sf$stop_times %>% left_join(gtfs_sf$trips, by = "trip_id") %>%
-  #mutate(arrival_time = gtfstools::string_to_seconds(arrival_time) ) #%>% lubridate::seconds())
-  filter(arrival_time_secs >= 8*60*60 & arrival_time_secs <= 18*60*60) %>%
+bus_freq <- gtfs_sf$stop_times %>% inner_join(trips_filtered, by = "trip_id") #%>% # req trips_filtered obj from filter_gtfs.R
+
+trips_in_t_period <- bus_freq %>% filter(stop_sequence == 1) %>% 
+  filter(arrival_time_secs >= 7*60*60 & arrival_time_secs <= 19*60*60) %>% # trips start between 7am and 7pm
+  pull(trip_id)
+bus_freq <- bus_freq %>% filter(trip_id %in% trips_in_t_period)
+bus_freq <- bus_freq %>% 
   group_by(stop_id, route_id, shape_id, direction_id) %>% 
   count() %>% 
   rename(freq = n) %>% 
   mutate(bph = freq/10) %>% # 10 = hours between 8am and 6pm
   mutate(awt = 60 * (60/bph/2) ) %>%  # awt in seconds
   # mutate(route_id2 = route_id)
-  ungroup() #%>% 
+  ungroup()
+
 
 bus_freq_route <- bus_freq %>%
   group_by(route_id, shape_id, direction_id) %>% 
   summarise(bph = median(bph), 
             awt = median(awt))
+
+bus_freq_route <- bus_freq_route %>% 
+  left_join(routes_filtered)
 
 bus_freq_stop <- bus_freq %>% 
   group_by(stop_id) %>% 
