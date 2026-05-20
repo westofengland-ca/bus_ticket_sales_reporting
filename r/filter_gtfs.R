@@ -2,7 +2,8 @@
 
 # select route_id from routes
 
-routes_filtered <- gtfs_sf$routes %>% filter(route_short_name %in% c(1,2,3,4,5,6,7,8,9,10))
+routes_filtered <- gtfs_sf$routes %>% filter(route_short_name %in% c(6,7,42,43,44,45))
+                                               #c(1,2,3,4,5,6,7,8,9,10))
 
 # service day filtered
 calendar_filtered <- gtfs$calendar %>% filter(  tuesday == 1 &     # filter for mon-fri service pattern

@@ -39,10 +39,10 @@ source("r/filter_gtfs.R")
 bus_freq <- gtfs_sf$stop_times %>% inner_join(trips_filtered, by = "trip_id") #%>% # req trips_filtered obj from filter_gtfs.R
 
 trips_in_t_period <- bus_freq %>% filter(stop_sequence == 1) %>% 
-  filter(arrival_time_secs >= 7*60*60 & arrival_time_secs <= 19*60*60) %>% # trips start between 7am and 7pm
+  filter(arrival_time_secs >= 8*60*60 & arrival_time_secs <= 18*60*60) %>% # trips start between 7am and 7pm
   pull(trip_id)
-bus_freq <- bus_freq %>% filter(trip_id %in% trips_in_t_period)
-bus_freq <- bus_freq %>% 
+bus_bph <- bus_freq %>% filter(trip_id %in% trips_in_t_period)
+bus_bph <- bus_bph %>% 
   group_by(stop_id, route_id, shape_id, direction_id) %>% 
   count() %>% 
   rename(freq = n) %>% 
@@ -51,14 +51,23 @@ bus_freq <- bus_freq %>%
   # mutate(route_id2 = route_id)
   ungroup()
 
+bus_trips <- bus_freq %>%
+  filter(stop_sequence == 1) %>% 
+  group_by(route_id, shape_id, direction_id) %>% 
+  count() %>% 
+  rename(freq = n)
 
-bus_freq_route <- bus_freq %>%
+
+
+bus_bph_route <- bus_bph %>%
   group_by(route_id, shape_id, direction_id) %>% 
   summarise(bph = median(bph), 
             awt = median(awt))
 
-bus_freq_route <- bus_freq_route %>% 
-  left_join(routes_filtered)
+bus_bph_route <- bus_bph_route %>%
+  left_join(bus_trips) %>% 
+  left_join(routes_filtered) %>% 
+  left_join(gtfs_sf$shapes)
 
 bus_freq_stop <- bus_freq %>% 
   group_by(stop_id) %>% 

@@ -6,7 +6,6 @@ editor: visual
 
 ## time series overview
 
-
 ```{r import}
 #| echo: FALSE
 #| warning: FALSE
@@ -49,7 +48,6 @@ month_csv <- month_csv[4:5] %>%
 
 ```
 
-
 ## bind into one data frame and validate
 
 ```{r oneDF_val}
@@ -67,7 +65,6 @@ month_csv <- month_csv[4:5] %>%
 # rm(list = ticketer_ls)
 
 ```
-
 
 ## convert into zoo:xts object for time series
 
@@ -98,13 +95,13 @@ month_csv_map <- do.call("rbind", month_csv_map)
 
 ```
 
-
 ## plot time series using dygraph
 
 ```{r dygraph_ts}
 library(dygraphs)
 p <- dygraph(month_csv_map) %>% 
-  dyOptions(fillGraph = TRUE, stepPlot = TRUE) %>% 
+  #dyOptions(fillGraph = TRUE, stepPlot = TRUE) %>% 
+  dyBarChart() %>% 
   dyRangeSelector() %>% 
   dyOptions(colors = dis_pal[2])
 
@@ -118,5 +115,3 @@ if(!dir.exists(glue("{proj_path}/ts_plots"))){
 saveWidget(p, file=glue("{proj_path}/ts_plots/dygraph_test.html"))
 
 ```
-
-
