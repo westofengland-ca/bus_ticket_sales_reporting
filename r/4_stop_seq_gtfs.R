@@ -3,7 +3,7 @@
 
 # for each route and shape_id get one example of stop sequence
 
-stop_seq <- bus_freq %>% 
+stop_seq <- bus_stats %>% 
   group_by(#shape_id, 
            route_id, 
            #stop_sequence,

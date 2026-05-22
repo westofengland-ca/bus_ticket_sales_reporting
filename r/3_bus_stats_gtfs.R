@@ -71,16 +71,27 @@ route_stats <- route_stats %>%
   left_join(bus_trips) %>% 
   left_join(bus_bph %>% 
               group_by(route_id, shape_id, direction_id) %>%
-              summarise(bph = median(bph),    # results in NAs ...
-                        awt = median(awt)))   # ... if 0 trips 8am-6pm
+              summarise(bph = median(bph),      # results in NAs ...
+                        awt = median(awt))) %>% # ... if 0 trips 8am-6pm
+  ungroup() %>% 
+  left_join(gtfs_sf$shapes)
+  
 route_stats <- route_stats %>% 
   #remove NA and replace with 0
   mutate(bph = ifelse(is.na(bph), 0, bph)) %>% 
   mutate(awt = ifelse(is.na(awt), 0, bph))
-# bus_trip_stats <- bus_stats %>%
-#   group_by(route_id, shape_id, direction_id) %>% 
-#   summarise(bph = median(bph), 
-#             awt = median(awt))
+
+# add day distance 
+route_stats <- route_stats %>% 
+  sf::st_as_sf() %>% 
+  mutate(route_len_m = sf::st_length(.)) %>% 
+  mutate(shape_day_distance = trips_24hr * route_len_m)
+
+route_stats <- route_stats %>% 
+  group_by(route_id) %>% 
+  mutate(route_day_distance = sum(shape_day_distance)) %>% 
+  group_by(route_id, direction_id) %>% 
+  mutate(direction_day_distance = sum(shape_day_distance))
 
 
 bus_bph_route <- bus_bph %>%
@@ -88,10 +99,10 @@ bus_bph_route <- bus_bph %>%
   summarise(bph = median(bph), 
             awt = median(awt))
 
-bus_bph_route <- bus_bph_route %>%
-  left_join(bus_trips) %>% 
-  left_join(routes_filtered) %>% 
-  left_join(gtfs_sf$shapes)
+# bus_bph_route <- bus_bph_route %>%
+#   left_join(bus_trips) %>% 
+#   left_join(routes_filtered) %>% 
+#   left_join(gtfs_sf$shapes)
 
 bus_bph_stop <- bus_bph %>% 
   group_by(stop_id) %>% 
