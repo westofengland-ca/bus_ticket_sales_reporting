@@ -4,7 +4,11 @@
 # for each route and shape_id get one example of stop sequence
 
 stop_seq <- bus_freq %>% 
-  group_by(shape_id, route_id, stop_sequence, stop_id, direction_id) %>% 
+  group_by(#shape_id, 
+           route_id, 
+           #stop_sequence,
+           #direction_id,
+           stop_id) %>% 
   summarise()
 # get the stop code for each stop id
 stop_seq <- stop_seq %>% left_join(gtfs_sf$stops %>% 

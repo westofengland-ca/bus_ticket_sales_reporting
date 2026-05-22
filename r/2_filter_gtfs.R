@@ -15,3 +15,4 @@ calendar_filtered <- gtfs$calendar %>% filter(  tuesday == 1 &     # filter for 
 trips_filtered <- gtfs_sf$trips %>% 
   filter(route_id %in% routes_filtered$route_id) %>% 
   filter(service_id %in% calendar_filtered)
+rm(calendar_filtered)

@@ -3,7 +3,7 @@ library(dplyr)
 #gtfs <- GTFShift::load_feed(choose.files())
 gtfs <- tidytransit::read_gtfs(choose.files())
 gtfs <- gtfstools::filter_by_route_type(gtfs, route_type = 3)
-gtfs <- GTFShift::build_shapes(gtfs) ## WARNING - overides any existing shapes
+# gtfs <- GTFShift::build_shapes(gtfs) ## WARNING - overides any existing shapes
 
 #gtfs <- st_as_sf(gtfs)
 #gtfs_sf <- gtfs %>% gtfstools::convert_shapes_to_sf()
