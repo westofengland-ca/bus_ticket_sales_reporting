@@ -96,8 +96,9 @@ route_stats <- route_stats %>%
 
 bus_bph_route <- bus_bph %>%
   group_by(route_id, shape_id, direction_id) %>% 
-  summarise(bph = median(bph), 
-            awt = median(awt))
+  summarise(trips_10hr = median(trips_10hr), # values should all be the same...
+            bph = median(bph),               # ...for each route_id,shape_id... 
+            awt = median(awt))               # ...and direction_id combo
 
  bus_bph_route <- bus_bph_route %>%
 #   left_join(bus_trips) %>% 
