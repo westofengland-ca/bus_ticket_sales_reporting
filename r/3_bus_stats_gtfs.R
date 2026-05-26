@@ -99,10 +99,10 @@ bus_bph_route <- bus_bph %>%
   summarise(bph = median(bph), 
             awt = median(awt))
 
-# bus_bph_route <- bus_bph_route %>%
+ bus_bph_route <- bus_bph_route %>%
 #   left_join(bus_trips) %>% 
 #   left_join(routes_filtered) %>% 
-#   left_join(gtfs_sf$shapes)
+   left_join(gtfs_sf$shapes)
 
 bus_bph_stop <- bus_bph %>% 
   group_by(stop_id) %>% 
