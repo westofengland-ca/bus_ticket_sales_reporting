@@ -2,7 +2,7 @@
 
 bus_bph_route_sf <- bus_bph_route %>% ungroup() %>% sf::st_as_sf(crs = 27700)
 
-bus_day_freq <- bus_freq %>% ##  !!! bus_freq is whole day timetable (not 8am to 6pm)
+bus_day_freq <- bus_stats %>% ##  !!! bus_stats is whole day timetable (not 8am to 6pm)
   group_by(stop_id, route_id, shape_id, direction_id) %>% 
   count() %>% 
   rename(freq = n) %>% 
