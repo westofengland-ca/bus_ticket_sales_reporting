@@ -53,7 +53,8 @@ month_csv <- month_csv[4:5] %>%
 
 # aggregate passeneger boardings by route
 
-month_csv_map <- map(month_csv, filter, Service %in% c(6,7,42,43,44,45))
+month_csv_map <- map(month_csv, filter, Service %in% routes_select))
+                       #c(6,7,42,43,44,45))
 month_csv_map <- map(month_csv_map, mutate, datetime = as_datetime(IssuedAt))
 month_csv_map <- do.call("rbind", month_csv_map)
 
