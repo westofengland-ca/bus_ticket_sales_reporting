@@ -2,7 +2,13 @@
 
 # select route_id from routes
 
-routes_filtered <- gtfs_sf$routes %>% filter(route_short_name %in% c(6,7,42,43,44,45))
+routes_select <- c("1","3","5","17","24","25","43","161","162","163",
+                   "700","716","734",
+                   "U1","U5",
+                   "M1","M2","M3","M4",
+                   "Y1","X39")   #c(6,7,42,43,44,45)
+
+routes_filtered <- gtfs_sf$routes %>% filter(route_short_name %in% routes_select)
                                                #c(1,2,3,4,5,6,7,8,9,10))
 
 # service day filtered
