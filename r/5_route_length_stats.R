@@ -1,4 +1,6 @@
-##
+
+##  ?????????          DELETE            ??????????
+##  ????????? might not need this script ??????????
 
 bus_bph_route_sf <- bus_bph_route %>% ungroup() %>% sf::st_as_sf(crs = 27700)
 
@@ -13,5 +15,5 @@ bus_day_freq <- bus_stats %>% ##  !!! bus_stats is whole day timetable (not 8am 
 
 bus_bph_route_sf <- bus_bph_route_sf %>% 
   mutate(route_len_m = sf::st_length(.)) %>% 
-  mutate(route_day_distance = freq * route_len_m)   ### freq = buses travelling
+  mutate(route_day_distance = trips_10hr * route_len_m)   ### freq = buses travelling
                                                     ### between 8am and 6pm (or otherwise)
