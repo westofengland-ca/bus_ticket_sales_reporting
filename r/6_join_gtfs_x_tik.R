@@ -37,10 +37,7 @@ palette[1:6]
 [1] "#364B9A" "#6EA6CD" "#C2E4EF" "#FEDA8B" "#F67E4B" "#A50026"
 
 
-# bubble chart:
- # y = mileage
- # x = passengers
- # bubble_size = bph
+
 
 # import month passenger csv
 proj_path <- here()
@@ -53,7 +50,7 @@ month_csv <- month_csv[4:5] %>%
 
 # aggregate passeneger boardings by route
 
-month_csv_map <- map(month_csv, filter, Service %in% routes_select))
+month_csv_map <- map(month_csv, dplyr::filter, Service %in% routes_select)
                        #c(6,7,42,43,44,45))
 month_csv_map <- map(month_csv_map, mutate, datetime = as_datetime(IssuedAt))
 month_csv_map <- do.call("rbind", month_csv_map)

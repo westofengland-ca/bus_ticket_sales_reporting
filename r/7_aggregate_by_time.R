@@ -2,6 +2,17 @@
 
 # need to join direction_id, possibly by using the stop_code
 
+
+pax_day <- pax %>%
+  mutate(datetime_day = round_date(datetime, unit = "day")) %>% 
+  group_by(datetime_day, 
+           Service, route_long_name) %>%
+  summarise(pax_count = n()) %>% # pax_counts for each day
+  
+
+
+
+
 # ??? bin by 15 min interval # idea: use modulo
 
 pax_15min <- pax %>% 

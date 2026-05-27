@@ -100,7 +100,7 @@ bus_bph_route <- bus_bph %>%
             bph = median(bph),               # ...for each route_id,shape_id... 
             awt = median(awt))               # ...and direction_id combo
 
- bus_bph_route <- bus_bph_route %>%
+bus_bph_route <- bus_bph_route %>%
 #   left_join(bus_trips) %>% 
 #   left_join(routes_filtered) %>% 
    left_join(gtfs_sf$shapes)
