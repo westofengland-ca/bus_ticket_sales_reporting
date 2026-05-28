@@ -1,0 +1,21 @@
+Service,route_long_name,is_supported
+1,Cribbs Causeway - Broomhill,FALSE
+16,Whitchurch - Fishponds,TRUE
+17,Bristol City Centre - Keynsham,TRUE
+24,Southmead Hospital - Ashton Vale,FALSE
+25,Bristol City Centre - Fishponds,TRUE
+3,Cribbs Causeway - Bristol City Centre,FALSE
+43,Imperial Park - Cadbury Heath,FALSE
+7,Bristol City Centre - Staple Hill,FALSE
+700,Bath Bus Station - Lansdown - Sion Hill,TRUE
+716,Bath Bus Station - Lower Weston - Newbridge Road - Lower Weston - Bath City Centre,TRUE
+734,"Bath Bus Station - Bathwick, Forrester Road - Bath Bus Station",TRUE
+T1,Bristol - Thornbury,FALSE
+U1,Stoke Bishop - Bristol City Centre,FALSE
+U5,Bath City Centre - Bath Spa University,FALSE
+X39,Bath - Bristol,FALSE
+Y1,Bristol - Yate,FALSE
+m1,Cribbs Causeway - Hengrove Park,FALSE
+m2,Long Ashton Park & Ride - Bristol City Centre,FALSE
+m3,Bristol City Centre - Emersons Green,FALSE
+m4,Bristol City Centre - Cribbs Causeway,FALSE

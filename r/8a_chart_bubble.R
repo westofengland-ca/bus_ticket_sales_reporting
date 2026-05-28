@@ -15,10 +15,19 @@ bubl_chart <- route_stats %>%
             route_day_distance = max(route_day_distance)) %>% 
   drop_na()
 
+# join is supported
+sup_path <- here()
+sup_path <- glue("{sup_path}/csv/auxiliary/")
+sup_path <- dir(sup_path, pattern = "supported", full.names = TRUE)
+sup <- read.csv(sup_path)
+
+bubl_chart <- left_join(bubl_chart, sup, by = c("route_short_name" = "Service", "route_long_name" = "route_long_name"))
+
 
 bubl_chart %>% hchart('scatter',
                       hcaes(x = route_day_distance,
                             y = pax_day,
-                            size = bph)
+                            #size = bph,
+                            group = is_supported)
                       )# 
 
