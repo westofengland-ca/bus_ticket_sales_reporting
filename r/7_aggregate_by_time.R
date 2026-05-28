@@ -24,5 +24,17 @@ pax_15min <- pax %>%
   mutate(qtrhr_of_day = (4 * hour(datetime)) + minute(datetime_15min)/15)  # ??? bin by 15 min interval
 
 pax_15min <- pax_15min %>% 
-  group_by(qtrhr_of_day, Service, route_long_name) %>% 
-  summarise(pax_count = n())
+  group_by(datetime_15min, qtrhr_of_day, Service, route_long_name) %>% 
+  summarise(pax_15min = n()) %>% 
+  ungroup()
+ # filter(hol_boolean == FALSE) %>%
+  # group_by(qtrhr_of_day, Service, route_long_name) %>% 
+  # 
+  # mutate(pax_weekday_mean_15min = mean(pax_15min)) %>% 
+pax_15min <- pax_15min %>% 
+  mutate(hol_boolean = timeDate::as.timeDate(datetime_15min) %>% timeDate::isHoliday(holidays = holidayLONDON(2024:2027), wday = 1:5)) %>% 
+  group_by(qtrhr_of_day, Service, route_long_name, hol_boolean) %>% 
+  mutate(pax_weekday_mean_15min = mean(pax_15min)) %>%    # average number of passengers boarding on non-holiday weekdays per 15 min time segment
+  ungroup()
+
+## 

@@ -53,6 +53,7 @@ rsconnect/
 # ticket sales csv files
 csv/sales/*.csv
 csv/sales/*.zip
+csv/gold/
 
 gtfs/
 html/
@@ -64,3 +65,4 @@ ts_plots/*.html
 
 # tdh keys
 import_ticket_sales/tdh_keys.py
+import_ticket_sales/__pycache__/
