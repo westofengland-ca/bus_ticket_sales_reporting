@@ -50,10 +50,10 @@ hchart(
   # hc_xAxis(
   #   plotLines = list(plotline)) |>
   hc_title(
-    text = "Average Boardings in each 15 minute period"
+    text = "Passengers boarding throughout the day"
   ) |>
   hc_subtitle(
-    text = "average boardings"
+    text = "average count of weekday passengers boardings in each 15 minute time segment"
   ) |> 
   hc_legend(
     layout = "horizontal",
@@ -61,4 +61,4 @@ hchart(
     align = "left",
     valueDecimals = 0
   ) |>
-  hc_size(height = 900)
+  hc_size(height = 600)
