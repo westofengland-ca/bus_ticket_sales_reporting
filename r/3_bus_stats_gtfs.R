@@ -33,7 +33,7 @@
 # need to filter gtfs_sf so that only services for a given date are in the stop_times sf
 # i.e. we just want the stop_times for the specific date we are interested in (e.g. a weekday in 2024)
 
-source("r/2_filter_gtfs.R")
+# source("r/2_filter_gtfs.R")
 
 # stop times for trips in filtered routes
 bus_stats <- gtfs_sf$stop_times %>% inner_join(trips_filtered, by = "trip_id") #%>% # req trips_filtered obj from filter_gtfs.R
