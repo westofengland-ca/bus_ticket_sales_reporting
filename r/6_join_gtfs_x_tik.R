@@ -43,8 +43,10 @@ palette[1:6]
 proj_path <- here()
 
 month_csv <- dir(glue("{proj_path}/csv/sales/"), pattern = "all_ops_ticketer_", full.names = TRUE)
+# month_csv <- dir(glue("{proj_path}/csv/gold/"), pattern = "gold_ticketer_", full.names = TRUE) # could use gold_production tables
 
-month_csv <- month_csv[4:5] %>%
+month_csv <- month_csv[4:5] %>%   ## !!! need to make sure ticketer dates match gtfs quarter !!!
+#month_csv <- month_csv[1] %>%  
   map(read.csv) %>%
   map(as_tibble)
 
