@@ -55,6 +55,7 @@ csv/sales/*.csv
 csv/sales/*.zip
 
 gtfs/
+html/
 
 # reports
 qmd_reports/ticket_time_series_files/

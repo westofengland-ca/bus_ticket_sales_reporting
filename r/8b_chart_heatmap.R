@@ -2,9 +2,21 @@
 # https://jkunst.com/highcharter/articles/showcase.html#the-impact-of-vaccines
 
 
-data(vaccines)
+# sort order = order by total passengers
+pax_15min <- pax_15min %>% 
+  mutate(service_name = paste0(Service, " ", route_long_name))
+  #factor(long_data$yaxis, levels = c("Y2", "Y1"))
 
-vaccines <- vaccines
+# arrange service name by total number of passengers
+service_name_sort <- pax_15min %>% 
+  group_by(service_name) %>% 
+  summarise(total_pax = sum(pax_count)) %>% 
+  arrange(total_pax) %>% 
+  pull(service_name)
+
+# use 'sorted' service_name_sort to factor service_name var
+pax_15min <- pax_15min %>% 
+  mutate(service_name = factor(service_name, levels = service_name_sort))
 
 
 fntltp <- JS("function(){
@@ -26,7 +38,7 @@ hchart(
   "heatmap", 
   hcaes(
     x = qtrhr_of_day,
-    y = paste0(Service, " ", route_long_name), 
+    y = service_name, 
     value = pax_count
   )
 ) |>
@@ -37,6 +49,7 @@ hchart(
   ) |>
   hc_yAxis(
     title = list(text = ""),
+   # categories = sort(unique(pax_15min$pax_count)),
     reversed = TRUE, 
     offset = -20,
     tickLength = 0,
