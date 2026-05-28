@@ -54,6 +54,8 @@ rsconnect/
 csv/sales/*.csv
 csv/sales/*.zip
 csv/gold/
+csv/bronze_week/
+csv/bronze_month/
 
 gtfs/
 html/
