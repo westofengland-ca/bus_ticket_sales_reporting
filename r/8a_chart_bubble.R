@@ -74,7 +74,7 @@ bubl_chart %>% hchart('scatter',
            margin = 20, # space between title (or subtitle) and plot [default = 15]
            align = "left",
            stlyle = list(useHTML = TRUE))  %>%
-  hc_subtitle(text = "There is a strong correlation between distance covered and the number of passengers who use the bus service.",
+  hc_subtitle(text = "There is also a correlation between buses per hour and the number of passengers who use the bus service, although the relationship is not as strong as with distance covered.",
               align = "left") %>%
   # x axis label
   hc_xAxis(title = list(text = "buses per hour (8am-6pm)")) %>% 
@@ -85,7 +85,7 @@ bubl_chart %>% hchart('scatter',
     pointFormat = "<b>{point.route_short_name} {point.route_long_name}</b><br>
     Buses Per Hour: {point.x}<br>
     Passengers: {point.y}<br>
-    Distance: {point.route_day_distance}<br>
+    Distance: {point.route_day_distance}km<br>
     Trips Per Day (both directions): {point.trips_24hr}"
     #formatter = fntltp
   ) %>% 
