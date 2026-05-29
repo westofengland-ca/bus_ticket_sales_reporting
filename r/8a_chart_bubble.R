@@ -71,12 +71,14 @@ p1 <- bubl_chart %>%
             Trips Per Day (both directions): {point.trips_24hr}"
             #formatter = fntltp
           ) %>% 
-          hc_colors(c(palette[4], palette[2])) %>% 
+          hc_colors(c(palette[4], palette[2])) %>%
+          hc_legend(verticalAlign = "top") %>%
           hc_exporting(
             enabled = TRUE,
             filename = "bus_patronage_x_distance") %>% 
           hc_add_theme(hc_theme(chart = list(backgroundColor = 'white')))
 
+p1
 
 p2 <- bubl_chart %>% 
   hchart('scatter', hcaes(x = round(bph,1),
@@ -103,7 +105,8 @@ p2 <- bubl_chart %>%
     Trips Per Day (both directions): {point.trips_24hr}"
     #formatter = fntltp
   ) %>% 
-  hc_colors(c(palette[4], palette[2])) %>% 
+  hc_colors(c(palette[4], palette[2])) %>%
+  hc_legend(verticalAlign = "top") %>%
   hc_exporting(
     enabled = TRUE,
     filename = "bus_patronage_x_bph") %>% 
@@ -137,8 +140,7 @@ p3 <- bubl_chart %>%
     #formatter = fntltp
   ) %>% 
   hc_colors(c(palette[4], palette[2])) %>% 
-  hc_legend(title = list("is (day-time) bus service financially supported?"),
-            verticalAlign = "top") %>% 
+  hc_legend(verticalAlign = "top") %>% 
   hc_exporting(
     enabled = TRUE,
     filename = "bus_patronage_x_trips") %>% 
@@ -153,6 +155,6 @@ if(!dir.exists(glue("{proj_path}/corr_plots"))){
   dir.create(glue("{proj_path}/corr_plots"))
 }
 
-saveWidget(p1, file=glue("{proj_path}/corr_plots/dygraph_test.html"))
-
-
+saveWidget(p1, file=glue("{proj_path}/corr_plots/pat_x_dis.html"))
+saveWidget(p2, file=glue("{proj_path}/corr_plots/pat_x_bph.html"))
+saveWidget(p3, file=glue("{proj_path}/corr_plots/pat_x_trip.html"))
