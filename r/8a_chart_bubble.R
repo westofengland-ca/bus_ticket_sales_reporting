@@ -24,10 +24,18 @@ sup <- read.csv(sup_path)
 bubl_chart <- left_join(bubl_chart, sup, by = c("route_short_name" = "Service", "route_long_name" = "route_long_name"))
 
 
+fntltp <- JS("function(){
+  return this.point.x + ' ' +  this.series.yAxis.categories[this.point.y] + ': ' +
+  Highcharts.numberFormat(this.point.value, 2);
+}")
+
 bubl_chart %>% hchart('scatter',
                       hcaes(x = route_day_distance,
                             y = pax_day,
                             #size = bph,
                             group = is_supported)
-                      )# 
+                      ) %>% 
+  hc_tooltip(
+    formatter = fntltp
+  )# 
 
