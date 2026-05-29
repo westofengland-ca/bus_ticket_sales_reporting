@@ -15,7 +15,9 @@ bubl_chart <- route_stats %>%
             trips_24hr = sum(trips_24hr),
             pax_day = max(pax_weekday_mean),
             route_day_distance = round(max(route_day_distance/1000),0)) %>% 
-  drop_na()
+  drop_na() %>% 
+  mutate(is_supported = case_when(is_supported == TRUE ~ "financially supported",
+                                  is_supported == FALSE ~ "commercial"))
 
 # join is supported
 sup_path <- here()
@@ -23,7 +25,9 @@ sup_path <- glue("{sup_path}/csv/auxiliary/")
 sup_path <- dir(sup_path, pattern = "supported", full.names = TRUE)
 sup <- read.csv(sup_path)
 
-bubl_chart <- left_join(bubl_chart, sup, by = c("route_short_name" = "Service", "route_long_name" = "route_long_name"))
+bubl_chart <- left_join(bubl_chart, sup, 
+                        by = c("route_short_name" = "Service", 
+                               "route_long_name" = "route_long_name"))
 
 
 fntltp <- JS("function(){
@@ -32,12 +36,20 @@ fntltp <- JS("function(){
   Highcharts.numberFormat(this.point.value, 2);
 }")
 
-bubl_chart %>% hchart('scatter',
-                      hcaes(x = round(route_day_distance,0),
-                            y = round(pax_day,0),
-                            #size = bph,
-                            group = is_supported)
-                      ) %>%
+# library(broom)
+# model <- lm(as.numeric(route_day_distance) ~ pax_day, data = bubl_chart)
+# fit <- augment(model) %>% arrange(pax_day) %>% rename("route_day_distance"="as.numeric(route_day_distance)" )
+
+p1 <- bubl_chart %>% hchart('scatter',
+                            hcaes(x = round(route_day_distance,0),
+                                  y = round(pax_day,0),
+                                  #size = bph,
+                                  group = is_supported)
+) %>%
+  # hc_add_series(
+  #   fit, type = "line", hcaes(x = route_day_distance, y = .fitted),
+  #   name = "regression line", id = "fit"
+  # ) %>%  
   hc_title(text = "Bus Services in the West of England: Relationship between total daily distance and patronage",
            margin = 20, # space between title (or subtitle) and plot [default = 15]
            align = "left",
@@ -64,12 +76,12 @@ bubl_chart %>% hchart('scatter',
   hc_add_theme(hc_theme(chart = list(backgroundColor = 'white')))
 
 
-bubl_chart %>% hchart('scatter',
-                      hcaes(x = round(bph,1),
-                            y = round(pax_day,0),
-                            #size = bph,
-                            group = is_supported)
-) %>%
+p2 <- bubl_chart %>% 
+  hchart('scatter', hcaes(x = round(bph,1),
+                          y = round(pax_day,0),
+                          # size = bph,
+                          group = is_supported)
+  ) %>%
   hc_title(text = "Bus Services in the West of England: Relationship between buses per hour and patronage",
            margin = 20, # space between title (or subtitle) and plot [default = 15]
            align = "left",
@@ -94,3 +106,51 @@ bubl_chart %>% hchart('scatter',
     enabled = TRUE,
     filename = "bus_patronage_x_bph") %>% 
   hc_add_theme(hc_theme(chart = list(backgroundColor = 'white')))
+
+
+p3 <- bubl_chart %>% 
+  hchart('scatter',
+         hcaes(x = round(trips_24hr,0),
+               y = round(pax_day,0),
+               #size = bph,
+               group = is_supported)
+  ) %>%
+  hc_title(text = "Bus Services in the West of England: Relationship between trips per day and patronage",
+           margin = 20, # space between title (or subtitle) and plot [default = 15]
+           align = "left",
+           stlyle = list(useHTML = TRUE))  %>%
+  hc_subtitle(text = "the correlation between the number of trips per day and patronage is weaker than bph and daily distance covered.",
+              align = "top") %>%
+  # x axis label
+  hc_xAxis(title = list(text = "trips per day (within 24 hour period)")) %>% 
+  # y axis label
+  hc_yAxis(title = list(text = "average weekday patronage")) %>% 
+  hc_tooltip(
+    headerFormat = NULL,
+    pointFormat = "<b>{point.route_short_name} {point.route_long_name}</b><br>
+          Trips: {point.x}<br>
+          Passengers: {point.y}<br>
+          Distance: {point.route_day_distance}km<br>
+          Buses Per Hour (8am-6pm): {point.bph}"
+    #formatter = fntltp
+  ) %>% 
+  hc_colors(c(palette[4], palette[2])) %>% 
+  hc_legend(title = list("is (day-time) bus service financially supported?"),
+            verticalAlign = "top") %>% 
+  hc_exporting(
+    enabled = TRUE,
+    filename = "bus_patronage_x_trips") %>% 
+  hc_add_theme(hc_theme(chart = list(backgroundColor = 'white')))
+
+p3
+
+proj_path <- here()
+
+# if ts_plots directory doesn't exist make directory
+if(!dir.exists(glue("{proj_path}/corr_plots"))){
+  dir.create(glue("{proj_path}/corr_plots"))
+}
+
+saveWidget(p1, file=glue("{proj_path}/corr_plots/dygraph_test.html"))
+
+
