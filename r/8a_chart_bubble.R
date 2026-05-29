@@ -151,10 +151,10 @@ p3
 proj_path <- here()
 
 # if ts_plots directory doesn't exist make directory
-if(!dir.exists(glue("{proj_path}/corr_plots"))){
-  dir.create(glue("{proj_path}/corr_plots"))
+if(!dir.exists(glue("{proj_path}/html"))){
+  dir.create(glue("{proj_path}/html"))
 }
 
-saveWidget(p1, file=glue("{proj_path}/corr_plots/pat_x_dis.html"))
-saveWidget(p2, file=glue("{proj_path}/corr_plots/pat_x_bph.html"))
-saveWidget(p3, file=glue("{proj_path}/corr_plots/pat_x_trip.html"))
+saveWidget(p1, file=glue("{proj_path}/html/pat_x_dis.html"))
+saveWidget(p2, file=glue("{proj_path}/html/pat_x_bph.html"))
+saveWidget(p3, file=glue("{proj_path}/html/pat_x_trip.html"))
