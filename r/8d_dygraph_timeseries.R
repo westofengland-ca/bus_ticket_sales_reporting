@@ -71,7 +71,13 @@ p <- dygraph(xts_metrobus, main = "metrobus patronage Q1 2026") %>%
           color = metrobus_pal[1:4]) %>% 
   dyAxis("y", label = "Passengers Boarding", valueRange = c(0, 500)) %>%
   dyHighlight(highlightSeriesOpts = list(strokeWidth = 3)) %>% 
-  dyRangeSelector()
+  dyRangeSelector(dateWindow = c("2026-03-23", "2026-03-30")) %>% 
+  dyShading(from = "2026-03-28", to = "2026-03-30") %>%
+  dyShading(from = "2026-03-21", to = "2026-03-23") %>%
+  dyShading(from = "2026-03-14", to = "2026-03-16") %>%
+  dyShading(from = "2026-03-7", to = "2026-03-9") %>%
+  dyShading(from = "2026-02-28", to = "2026-03-2")
+
 p
 
 
