@@ -14,7 +14,7 @@ bubl_chart <- route_stats %>%
   summarise(bph = max(bph),
             trips_24hr = sum(trips_24hr),
             pax_day = max(pax_weekday_mean),
-            route_day_distance = max(route_day_distance)) %>% 
+            route_day_distance = round(max(route_day_distance/1000),0)) %>% 
   drop_na()
 
 # join is supported
@@ -33,20 +33,64 @@ fntltp <- JS("function(){
 }")
 
 bubl_chart %>% hchart('scatter',
-                      hcaes(x = route_day_distance/1000,
-                            y = pax_day,
+                      hcaes(x = round(route_day_distance,0),
+                            y = round(pax_day,0),
                             #size = bph,
                             group = is_supported)
                       ) %>%
-  hc_title(text = "Relationship between bus service mileage and patronage",
+  hc_title(text = "Bus Services in the West of England: Relationship between total daily distance and patronage",
            margin = 20, # space between title (or subtitle) and plot [default = 15]
            align = "left",
            stlyle = list(useHTML = TRUE))  %>%
-  hc_subtitle(text = "Unsurprisingly, bus services that cover more distance in a day tend to have more passengers",
-              align = "left") %>% 
+  hc_subtitle(text = "There is a strong correlation between distance covered and the number of passengers who use the bus service.",
+              align = "left") %>%
+  # x axis label
+  hc_xAxis(title = list(text = "total distance covered by all trips (km)")) %>% 
+  # y axis label
+  hc_yAxis(title = list(text = "average weekday patronage")) %>% 
   hc_tooltip(
-    headerFormat = "<b>{point.x + ' ' + this.point.route_long_name}</b><br>",
-    pointFormat = "Distance: {point.x} mm<br>Passengers: {point.y} mm"
+    headerFormat = NULL,
+    pointFormat = "<b>{point.route_short_name} {point.route_long_name}</b><br>
+    Distance: {point.x} km<br>
+    Passengers: {point.y}<br>
+    Buses Per Hour: {point.bph}<br>
+    Trips Per Day (both directions): {point.trips_24hr}"
     #formatter = fntltp
-  )# 
+  ) %>% 
+  hc_colors(c(palette[4], palette[2])) %>% 
+  hc_exporting(
+    enabled = TRUE,
+    filename = "bus_patronage_x_distance") %>% 
+  hc_add_theme(hc_theme(chart = list(backgroundColor = 'white')))
 
+
+bubl_chart %>% hchart('scatter',
+                      hcaes(x = round(bph,1),
+                            y = round(pax_day,0),
+                            #size = bph,
+                            group = is_supported)
+) %>%
+  hc_title(text = "Bus Services in the West of England: Relationship between buses per hour and patronage",
+           margin = 20, # space between title (or subtitle) and plot [default = 15]
+           align = "left",
+           stlyle = list(useHTML = TRUE))  %>%
+  hc_subtitle(text = "There is a strong correlation between distance covered and the number of passengers who use the bus service.",
+              align = "left") %>%
+  # x axis label
+  hc_xAxis(title = list(text = "buses per hour (8am-6pm)")) %>% 
+  # y axis label
+  hc_yAxis(title = list(text = "average weekday patronage")) %>% 
+  hc_tooltip(
+    headerFormat = NULL,
+    pointFormat = "<b>{point.route_short_name} {point.route_long_name}</b><br>
+    Buses Per Hour: {point.x}<br>
+    Passengers: {point.y}<br>
+    Distance: {point.route_day_distance}<br>
+    Trips Per Day (both directions): {point.trips_24hr}"
+    #formatter = fntltp
+  ) %>% 
+  hc_colors(c(palette[4], palette[2])) %>% 
+  hc_exporting(
+    enabled = TRUE,
+    filename = "bus_patronage_x_bph") %>% 
+  hc_add_theme(hc_theme(chart = list(backgroundColor = 'white')))
