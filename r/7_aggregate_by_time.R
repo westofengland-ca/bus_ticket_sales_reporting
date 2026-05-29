@@ -9,7 +9,7 @@ pax_day <- pax %>%
            Service, route_long_name) %>%
   summarise(pax_count = n()) %>% # pax_counts for each day
   mutate(weekday = wday(datetime_day, label = TRUE)) %>%
-  mutate(hol_boolean = as.timeDate(datetime_day) %>% timeDate::isHoliday(holidays = holidayLONDON(2024:2027), wday = 1:5)) %>%
+  mutate(hol_boolean = timeDate::as.timeDate(datetime_day) %>% timeDate::isHoliday(holidays = timeDate::holidayLONDON(2024:2027), wday = 1:5)) %>%
   filter(hol_boolean == FALSE) %>% 
   group_by(Service, route_long_name) %>% 
   summarise(pax_weekday_mean = mean(pax_count) %>% round(digits = 1)) # pax_weekday_mean = daily average for non-holiday weekdays
