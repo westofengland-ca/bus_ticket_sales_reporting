@@ -76,8 +76,20 @@ p <- dygraph(xts_metrobus, main = "metrobus patronage Q1 2026") %>%
   dyShading(from = "2026-03-21", to = "2026-03-23") %>%
   dyShading(from = "2026-03-14", to = "2026-03-16") %>%
   dyShading(from = "2026-03-7", to = "2026-03-9") %>%
-  dyShading(from = "2026-02-28", to = "2026-03-2")
+  dyShading(from = "2026-02-28", to = "2026-03-2") %>%
+  dyShading(from = "2026-02-21", to = "2026-02-23") %>%
+  dyShading(from = "2026-02-14", to = "2026-02-16") %>%
+  dyShading(from = "2026-02-7", to = "2026-02-9") %>%
+  dyShading(from = "2026-01-31", to = "2026-02-2") %>%
+  dyShading(from = "2026-01-24", to = "2026-01-26") %>%
+  dyShading(from = "2026-01-17", to = "2026-01-19") %>%
+  dyShading(from = "2026-01-10", to = "2026-01-12") %>%
+  dyShading(from = "2026-01-03", to = "2026-01-5") 
+  
+  
+  
 
 p
 
-
+proj_path <- here()
+saveWidget(p, file=glue("{proj_path}/html/metrobus_patronage.html"))
