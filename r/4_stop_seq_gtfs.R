@@ -24,7 +24,8 @@ stop_seq <- stop_seq %>% left_join(gtfs_sf$routes %>%
 
 
 stop_seq_trip_lookup <- # gtfs info trip_id, shape_id and departure time for each trip_id
-  gtfs_sf$stop_times %>% 
+  # gtfs_sf$stop_times %>% 
+  bus_stats %>% 
   filter(stop_sequence == 1) %>%
   select(trip_id, departure_time) %>% 
   left_join(gtfs_sf$trips %>% select(trip_id, 
