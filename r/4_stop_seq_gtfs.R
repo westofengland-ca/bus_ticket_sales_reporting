@@ -29,9 +29,11 @@ stop_seq_trip_lookup <- # gtfs info trip_id, shape_id and departure time for eac
   select(trip_id, departure_time) %>% 
   left_join(gtfs_sf$trips %>% select(trip_id, 
                                      route_id, 
-                                     service_id, 
+                                     #service_id, 
                                      shape_id, 
                                      direction_id), 
-            by = "trip_id")
+            by = "trip_id") %>%
+  select(-trip_id) %>% 
+  mutate(departure_time = stringr::str_remove(departure_time, pattern = ":00$"))
   
   
