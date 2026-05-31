@@ -96,8 +96,12 @@ month_csv <- do.call("rbind", month_csv)
 # month_csv_map using Service = route_short_name and
 # Bus_Stop_Atco = stop_code
 
-pax <- month_csv %>% left_join(stop_seq, 
-                                   by = c("Service" = "route_short_name", "Bus_Stop_Atco" = "stop_code"))
+pax <- month_csv %>% 
+  left_join(stop_seq %>% 
+              ungroup() %>% 
+              select(-shape_id, -stop_sequence, -direction_id) %>% 
+              distinct(),
+            by = c("Service" = "route_short_name", "Bus_Stop_Atco" = "stop_code"))
 
 # find a way to join bus stats and month_csv by route
 
