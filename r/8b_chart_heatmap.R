@@ -2,6 +2,12 @@
 # https://jkunst.com/highcharter/articles/showcase.html#the-impact-of-vaccines
 
 
+# filter top x routes only
+# title and axis
+# save into html folder
+# tooltip - route name/number etc
+
+
 # sort order = order by total passengers
 pax_15min <- pax_15min %>% 
   mutate(service_name = paste0(Service, " ", route_long_name))
@@ -10,7 +16,7 @@ pax_15min <- pax_15min %>%
 # arrange service name by total number of passengers
 service_name_sort <- pax_15min %>% 
   group_by(service_name) %>% 
-  summarise(total_pax = sum(pax_count)) %>% 
+  summarise(total_pax = sum(pax_weekday_mean_15min)) %>% 
   arrange(total_pax) %>% 
   pull(service_name)
 
@@ -39,7 +45,7 @@ hchart(
   hcaes(
     x = qtrhr_of_day,
     y = service_name, 
-    value = pax_count
+    value = pax_weekday_mean_15min
   )
 ) |>
   hc_colorAxis(

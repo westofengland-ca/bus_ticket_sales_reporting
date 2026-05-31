@@ -109,7 +109,7 @@ pax <- month_csv %>%
 # or using stop_seq_trip_lookup
 
 stop_seq_trip_lookup_all_stops <- stop_seq_trip_lookup %>% 
-  left_join(stop_seq, by = c("route_id", "shape_id"))
+  left_join(stop_seq, by = c("route_id", "shape_id", "direction_id"))
 
 pax_ss <- month_csv %>% 
   left_join(stop_seq_trip_lookup_all_stops %>% 

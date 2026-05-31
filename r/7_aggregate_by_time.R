@@ -32,7 +32,7 @@ pax_15min <- pax_15min %>%
   # 
   # mutate(pax_weekday_mean_15min = mean(pax_15min)) %>% 
 pax_15min <- pax_15min %>% 
-  mutate(hol_boolean = timeDate::as.timeDate(datetime_15min) %>% timeDate::isHoliday(holidays = holidayLONDON(2024:2027), wday = 1:5)) %>% 
+  mutate(hol_boolean = timeDate::as.timeDate(datetime_15min) %>% timeDate::isHoliday(holidays = timeDate::holidayLONDON(2024:2027), wday = 1:5)) %>% 
   group_by(qtrhr_of_day, Service, route_long_name, hol_boolean) %>% 
   mutate(pax_weekday_mean_15min = mean(pax_15min)) %>%    # average number of passengers boarding on non-holiday weekdays per 15 min time segment
   ungroup()

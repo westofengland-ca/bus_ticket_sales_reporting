@@ -15,6 +15,13 @@ pax_1 <- pax_1 %>%
   group_by(Ticket_ID) %>%
   filter(!(n()>1 & stop_sequence > 1))
 
+pax_1_boilerplate <- pax_1 %>% select() # boilerplate example for filling NA gaps
+# this can be used when some GTFS trip start times do not match the Ticketer
+# trip start times.
+## maybe just nead a stop_direction var 0 or 1
+
+## turn agrregate by time script into functions
+
 #pax_1_dup <- pax_1 %>% group_by(Ticket_ID) %>% filter(n() > 1) %>% ungroup()
 
 basemap
