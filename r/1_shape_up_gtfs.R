@@ -11,6 +11,8 @@ gtfs_sf <- gtfs %>% tidytransit::gtfs_as_sf(crs = 27700)
 
 gtfs_sf <- gtfs_sf %>% gtfstools::convert_time_to_seconds()
 
+rm(gtfs)
+
 #pal <-  mapview::mapviewPalette("mapviewSpectralColors")
 #mapview::mapview(gtfs_sf$shapes, zcol = "shape_id", col.regions = pal(10), legend = FALSE)
 

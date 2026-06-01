@@ -3,7 +3,7 @@
 basemap <- source("r/9_basemap.R")
 
 pax_1 <- pax_ss %>% filter(Service == "1") %>%
-  mutate(datetime_day = round_date(datetime, unit = "day")) %>%
+  mutate(datetime_day = floor_date(datetime, unit = "day")) %>%
   mutate(weekday = wday(datetime_day, label = TRUE)) %>%
   mutate(hol_boolean = timeDate::as.timeDate(datetime_day) %>% 
            timeDate::isHoliday(holidays = timeDate::holidayLONDON(2024:2027), 

@@ -21,7 +21,7 @@ library(khroma)
 [7] "#FDBF6F" "#FF7F00" "#CAB2D6" "#6A3D9A" "#FFFF99"
 
 
-palette_fun <- khroma::color("batlow")
+palette_fun <- khroma::color("iridescent")
 palette <- palette_fun(6)
 palette[1:6]
 
@@ -75,7 +75,7 @@ for(i in 1:length(month_csv)){
 month_csv <- dir(tik_path, pattern = "all_ops_ticketer_", full.names = TRUE)
 # month_csv <- dir(glue("{proj_path}/csv/gold/"), pattern = "gold_ticketer_", full.names = TRUE) # could use gold_production tables
 
-month_csv <- month_csv[1:3] %>%   ## !!! need to make sure ticketer dates match gtfs quarter !!!
+month_csv <- month_csv[2] %>%   ## !!! need to make sure ticketer dates match gtfs quarter !!!
 #month_csv <- month_csv[1] %>%  
   map(read.csv) %>%
   map(as_tibble)
