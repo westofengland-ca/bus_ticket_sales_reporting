@@ -108,8 +108,7 @@ pax <- month_csv %>%
 
 # or using stop_seq_trip_lookup
 
-stop_seq_trip_lookup_all_stops <- stop_seq_trip_lookup %>% 
-  left_join(stop_seq, by = c("route_id", "shape_id", "direction_id"))
+
 
 pax_ss <- month_csv %>% 
   left_join(stop_seq_trip_lookup_all_stops %>% 
@@ -122,7 +121,17 @@ pax_ss <- month_csv %>%
                    "Bus_Stop_Atco" = "stop_code",
                    "Scheduled_Start_Time" = "departure_time"))
 
-
+pax_ss <- month_csv %>% 
+  left_join(stop_seq_boilerplate %>% 
+              ungroup() %>% 
+              # select(-shape_id, 
+              #        -direction_id, 
+              #        -stop_sequence ) %>% 
+              distinct(),
+            by = c("Service" = "route_short_name", 
+                   "Bus_Stop_Atco" = "stop_code")) %>% 
+  select(-shape_id) %>% 
+  distinct()
 # find a way to join bus stats and month_csv by route
 
 
