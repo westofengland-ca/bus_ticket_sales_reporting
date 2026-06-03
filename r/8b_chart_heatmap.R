@@ -108,7 +108,25 @@ hc_pax_boarding_heatmap <-
     #   mutate(service_name = factor(service_name, levels = service_name_sort))
    
     pax_bin_df <- pax_bin_df %>% 
-      mutate(day_of_week = lubridate::wday(datetime_bin))
+      mutate(day_of_week = lubridate::wday(datetime_bin, label = TRUE))
+    
+    pax_bin_df <- pax_bin_df %>% 
+      group_by(day_of_week, time_unit_of_day) %>%
+      summarise(pax_in_bin = round(mean(pax_in_bin),0), datetime = first(datetime_bin)) %>%
+      ungroup() %>% 
+      mutate(time = format(datetime, "%H:%M"))
+    
+    
+    ## tooltip
+    
+    
+    # tooltip_js <-
+    #   JS("function() {
+    #   return '<b> time:' + Highcharts.dateFormat('%b %Y', (this.datetime)) + '</b><br/>' +
+    #   '<span style=\"color:' + this.series.color + ';font-weight:bold;\">' +
+    #   this.series.name + ': </span>' + Highcharts.numberFormat(this.y, 2) + ' °F';
+    #      }")
+    
     
     hchart(
       pax_bin_df, 
@@ -116,11 +134,11 @@ hc_pax_boarding_heatmap <-
       hcaes(
         x = time_unit_of_day,
         y = day_of_week, 
-        value = pax_in_bin
+        value = round(pax_in_bin, 0)
       )
     ) |>
       hc_colorAxis(
-        stops = color_stops(10, palette_fun(10)[10:1])
+        stops = color_stops(10, palette_fun(10)[1:10])
         
         #type = "logarithmic"
       ) |>
@@ -135,15 +153,22 @@ hc_pax_boarding_heatmap <-
         labels = list(style = list(fontSize = "9px"))
       ) |>
       hc_tooltip(
-        formatter = fntltp
+        headerFormat = NULL,
+        pointFormat = "<b>{point.time}</b><br>
+            Passengers Boarding: <b>{point.pax_in_bin}</b><br>"
       ) |>
       hc_xAxis(
-        text = "time of day") %>% 
+        title = list(text = "time of day"),
+        labels = list(formatter = htmlwidgets::JS( 
+          "function() {
+        return this.datetime; /* all labels to absolute values */
+    }") ) )%>% 
       hc_title(
         text = "Passengers boarding throughout the day"
       ) |>
       hc_subtitle(
-        text = "average count of weekday passengers boardings in each time segment"
+        text = "average (mean) passenger boarding for each 15 minute time period on each weekday (excluding public holidays)<br>
+        for bus service 1 Cribbs Causeway - Broomhill in February 2026"
       ) |> 
       hc_legend(
         layout = "horizontal",

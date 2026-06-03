@@ -21,7 +21,7 @@ library(khroma)
 [7] "#FDBF6F" "#FF7F00" "#CAB2D6" "#6A3D9A" "#FFFF99"
 
 
-palette_fun <- khroma::color("iridescent")
+palette_fun <- khroma::color("batlow")
 palette <- palette_fun(6)
 palette[1:6]
 

@@ -69,3 +69,35 @@ time_binner <-    # function to bin by x mins, with holiday TRUE/FALSE var
   }
 
 pax1_30_bin <- time_binner(pax_1_full, bin_in_mins = 30)
+
+
+
+time_place_binner <-    # function to bin by x mins, with holiday TRUE/FALSE var
+  function(tik_obs = pax, bin_in_mins = 15){
+    
+    time_bin <- paste0(bin_in_mins, " mins")
+    hr_multiplier <- 60/bin_in_mins
+    pax_binned <- tik_obs %>% 
+      mutate(datetime_bin = round_date(datetime, unit = time_bin)) #%>% 
+    # 
+    
+    pax_binned <- pax_binned %>% 
+      group_by(datetime_bin, Service, route_long_name, Bus_Stop_Atco, direction_id, shape_id) %>% 
+      summarise(pax_in_bin = n()) %>% 
+      ungroup()
+    # filter(hol_boolean == FALSE) %>%
+    # group_by(qtrhr_of_day, Service, route_long_name) %>% 
+    # 
+    # mutate(pax_weekday_mean_15min = mean(pax_15min)) %>% 
+    pax_binned <- pax_binned %>% 
+      mutate(hol_boolean = timeDate::as.timeDate(datetime_bin) %>% timeDate::isHoliday(holidays = timeDate::holidayLONDON(2024:2027), wday = 1:5)) %>% 
+      group_by(datetime_bin, Service, route_long_name,Bus_Stop_Atco, direction_id, shape_id, hol_boolean) %>% 
+      mutate(pax_in_bin = mean(pax_in_bin)) %>%    # average number of passengers boarding on non-holiday weekdays per 15 min time segment
+      ungroup() %>% 
+      mutate(time_unit_of_day = (hr_multiplier * hour(datetime_bin)) + minute(datetime_bin)/bin_in_mins)  # ??? bin by 15 min interval
+    
+    return(pax_binned)
+    
+  }
+ 
+pax1_30_tp_bin <- time_place_binner(pax_1_full, bin_in_mins = 30)
